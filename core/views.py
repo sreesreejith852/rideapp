@@ -1,9 +1,12 @@
-from rest_framework import generics
+from django.contrib.auth.models import User
+from rest_framework import generics, viewsets, status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer, CustomAuthTokenSerializer
 from rest_framework.decorators import action
+from django.contrib.auth import authenticate
+from .serializers import UserSerializer, CustomAuthTokenSerializer, RideSerializer
+from .models import Ride
 from .matching import find_best_driver
 
 class UserCreateView(generics.CreateAPIView):
@@ -21,9 +24,6 @@ class CustomAuthToken(ObtainAuthToken):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key})
         return Response({'error': 'Invalid credentials'}, status=400)
-
-
-
 
 class RideViewSet(viewsets.ModelViewSet):
     queryset = Ride.objects.all()
@@ -53,5 +53,3 @@ class RideViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(ride)
             return Response(serializer.data)
         return Response({'error': 'Invalid status'}, status=400)
-
-
